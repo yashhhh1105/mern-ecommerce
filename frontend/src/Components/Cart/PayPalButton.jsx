@@ -10,20 +10,19 @@ const PayPalButton = ({amount,onSuccess,onError}) => {
         style={{layout:"vertical"}}
         createOrder={(data,actions) => {
             return actions.order.create({
-                intent: "CAPTURE",
 
                 purchase_units: [
                     {
                         amount:{
                             currency_code:"USD",
-                            value:"100.00"
+                            value:parseFloat(amount).toFixed(2)
                         },
                     },
                 ],
             });
         }}
         onApprove={(data,actions) => {
-            return actions.order.capture().then(onSuccess)
+            return actions.order.capture().then(onSuccess);
         }}
         onError={onError}
         />

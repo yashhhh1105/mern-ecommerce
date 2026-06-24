@@ -72,7 +72,7 @@ const orderSchema = new mongoose.Schema({
         enum: ["Processing","Shipped","Delivered", "Cancelled"],
     },
 },
-{ timeseries: true}
+{ timestamps: true}
 );
 
 module.exports = mongoose.model("order", orderSchema);

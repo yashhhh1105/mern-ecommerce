@@ -32,6 +32,10 @@ const Checkout = () => {
 
     const handleCreateCheckout = async (e) => {
         e.preventDefault();
+
+            console.log("Button clicked");
+            console.log(cart);
+
         if(cart && cart.products.length > 0) {
             const res = await dispatch (
                 createCheckout({
@@ -41,6 +45,9 @@ const Checkout = () => {
                     totalPrice: cart.totalPrice,
                 })
             );
+
+            console.log("Response:", res);
+            
             if(res.payload && res.payload._id){
                 setCheckoutId(res.payload._id); //Set checkout ID if checkout was successful
             }
@@ -50,7 +57,7 @@ const Checkout = () => {
     const handlePaymentSuccess = async(details) =>{
        try {
           const response = await axios.put(
-            `${import.meta.env.VITE_BACKEND_URL}/api/checkout/pay`,
+            `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${checkoutId}pay`,
             {paymentStatus: "paid", paymentDetails: details},
             {
                 headers: {
@@ -58,9 +65,7 @@ const Checkout = () => {
                 }
             }
           );
-          if(response.status === 200){
             await handleFinalizeCheckout(checkoutId); //Finalize checkout if payment is successful
-          }
        } catch (error) {
         console.error(error);
        }
@@ -77,11 +82,7 @@ const Checkout = () => {
                     },
                 },
             );
-            if (response.status === 200){
                 navigate("/order-confirmation");
-            } else {
-                console.error(error);
-            }
         } catch (error) {
             console.error(error);
         }
@@ -116,7 +117,7 @@ const Checkout = () => {
                     onChange={(e) => setShippingAddress({...shippingAddress, firstName:
                         e.target.value
                     })} className='w-full p-2 border rounded'
-                    requied />
+                    required />
                 </div>
                 <div>
                     <label className='block text-gray-700'>Last Name</label>
@@ -125,7 +126,7 @@ const Checkout = () => {
                     onChange={(e) => setShippingAddress({...shippingAddress, lastName:
                         e.target.value
                     })} className='w-full p-2 border rounded'
-                    requied />
+                    required />
                 </div>
             </div>
             <div className='mb-4'>
@@ -145,7 +146,7 @@ const Checkout = () => {
                     onChange={(e) => setShippingAddress({...shippingAddress, city:
                         e.target.value
                     })} className='w-full p-2 border rounded'
-                    requied />
+                    required />
                 </div>
                 <div>
                     <label className='block text-gray-700'>Postal Code</label>
@@ -154,7 +155,7 @@ const Checkout = () => {
                     onChange={(e) => setShippingAddress({...shippingAddress, postalCode:
                         e.target.value
                     })} className='w-full p-2 border rounded'
-                    requied />
+                    required />
                 </div>
             </div>
             <div className='mb-4'>
@@ -209,8 +210,8 @@ const Checkout = () => {
                         />
                         <div>
                             <h3 className='text-md'>{products.name}</h3>
-                            <p className='text-gray-500'>SIze: {products.size}</p>
-                            <p className='text-gray-500'>COlor:{products.color}</p>
+                            <p className='text-gray-500'>Size: {products.size}</p>
+                            <p className='text-gray-500'>Color:{products.color}</p>
                         </div>    
                     </div>
                     <p className='text-xl'>${products.price?.toLocaleString()}</p>
