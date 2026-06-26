@@ -2,6 +2,7 @@ const express = require("express");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const { protect } = require("../middleware/authMiddleware");
+const {getCartCache, setCartCache, invalidateCartCache } = require("../middleware/cartCache");
 
 const router = express.Router();
 
@@ -32,12 +33,13 @@ router.post("/", async (req, res) => {
             const productIndex= cart.products.findIndex((p) => 
             p.productId.toString() === productId &&
             p.size === size &&
-            p.color ===color 
+            p.color === color 
 );
 if(productIndex > -1) {
 
     //If the product already exists, update the quantity
     cart.products[productIndex].quantity+=quantity;
+
     }else {
         //add new product
         cart.products.push({
@@ -57,6 +59,8 @@ if(productIndex > -1) {
         0
     );
     await cart.save();
+    await invalidateCartCache(userId, guestId); //Invalidate old cache
+    await setCartCache(userId, guestId, cart); //Set fresh cache
     return res.status(200).json(cart);
 }   else {
     //Create a new cart for the guest or user
@@ -72,10 +76,11 @@ if(productIndex > -1) {
                 size,
                 color,
                 quantity,
-            },
+            }
         ],
         totalPrice : product.price * quantity,
     });
+    await setCartCache(userId, guestId, newCart); //Cache new cart
     return res.status(201).json(newCart);
 }
     }catch(error) {
@@ -112,6 +117,8 @@ router.put("/", async (req, res) =>{
                 0
             );
             await cart.save();
+            await invalidateCartCache(userId, guestId); //Invalidate
+            await setCartCache(userId, guestId, cart); //Refresh
             return res.status(200).json(cart);
         }else {
             return res.status(404).json({ message: "Product not found in cart"});
@@ -129,8 +136,7 @@ router.delete("/", async (req, res) => {
     const { productId, size, color, guestId, userId} = req.body;
     try{
         let cart = await getCart(userId, guestId);
-
-        if(!cart) return res.status(404).json({message: "cart not found"});
+        if(!cart) return res.status(404).json({message: "Cart not found"});
 
         const productIndex = cart.products.findIndex(
             (p) => 
@@ -141,12 +147,12 @@ router.delete("/", async (req, res) => {
 
         if(productIndex > -1) {
             cart.products.splice(productIndex, 1);
-
             cart.totalPrice = cart.products.reduce(
                 (acc, item) => acc + item.price * item.quantity,
             0
         );
         await cart.save();
+        await invalidateCartCache(userId, guestId); //Invalidate
         return res.status(200).json(cart);
         }else {
             return res.status(404).json({ message: "Product not found in cart "});
@@ -157,15 +163,21 @@ router.delete("/", async (req, res) => {
     }
 });
 
-//@route GET /api/cart
+//@route GET /api/cart -- check cache first
 //@desc Get logged-in user's or guest user's cart
 //@access Public
 router.get("/", async (req, res) => {
     const { userId, guestId} = req.query;
 
     try{
+        //Check cache first
+        const cached = await getCartCache(userId, guestId);
+        if(cached) return res.json(cached);
+
+        //Cache miss - hit DB
         const cart = await getCart(userId, guestId);
         if(cart) {
+            await setCartCache(userId, guestId, cart);
             res.json(cart);
         } else {
             res.status(404).json({ message: "Cart not found"});
