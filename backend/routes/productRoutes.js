@@ -1,6 +1,8 @@
 const express = require("express");
 const Product = require("../models/Product");
 const { protect, admin } = require("../middleware/authMiddleware");
+const cache = require("../middleware/cache");
+const redis = require("../config/redis");
 
 const router = express.Router();
 
@@ -140,6 +142,9 @@ router.delete("/:id", protect, admin, async(req, res) => {
         if(product){
             //Remove the product from DB
             await product.deleteOne();
+            const keys = await redis.keys("cache:/api/products*");
+            if (keys.length) await redis.del(keys);
+            console.log("Cache invalidated");
             res.json({message: "Product removed"});
         }else {
             res.status(404).json({message: "Product not found"});
@@ -153,7 +158,8 @@ router.delete("/:id", protect, admin, async(req, res) => {
 //@route GET /api/products
 //@desc Get all products with optional query filters
 //@access Public
-router.get("/", async (req, res) => {
+//Cache for 5 mins
+router.get("/",cache(300) ,async (req, res) => {
     try{
        const {collection, size, color, gender, minPrice, maxPrice, sortBy, search,
              category, material, brand, limit
@@ -236,7 +242,8 @@ router.get("/", async (req, res) => {
 //@route GET /api/products/best-seller
 //@desc Retrieve the product with highest rating
 //@access Public
-router.get("/best-seller" , async(req, res) => {
+//Cache for 10 mins
+router.get("/best-seller" ,cache(600), async(req, res) => {
     try{
         const bestSeller = await Product.findOne().sort({ rating: -1});
         if(bestSeller) {
@@ -253,7 +260,8 @@ router.get("/best-seller" , async(req, res) => {
 //@route GET /api/products/new-arrivals
 //@desc Retrieve latest 8 products--Creation date
 //@access Public
-router.get("/new-arrivals", async (req, res) => {
+//Cache for 5 mins
+router.get("/new-arrivals", cache(300), async (req, res) => {
     try{
         //Fetch latest 8 products
         const newArrivals = await Product.find().sort({ createdAt: -1 }).limit(8);
