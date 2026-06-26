@@ -51,7 +51,7 @@ const UserManagement = () => {
     };
 
     const handleRoleChange = (userId, newRole) => {
-        dispatch(updateUser({id: userId, role: newRole});)
+        dispatch(updateUser({id: userId, role: newRole}))
     };
 
     const handleDeleteUSer = (userId) => {
