@@ -13,7 +13,7 @@
   "description": "",
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",
-    "axios": "^1.17.0",
+    "axios": "^1.18.1",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
     "cors": "^2.8.6",
@@ -25,6 +25,7 @@
     "mongoose": "^9.6.3",
     "multer": "^2.1.1",
     "nodemon": "^3.1.14",
+    "p-limit": "^7.3.0",
     "rate-limit-redis": "^5.0.0",
     "react-redux": "^9.3.0",
     "streamifier": "^0.1.1"

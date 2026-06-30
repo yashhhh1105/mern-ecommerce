@@ -6,6 +6,19 @@ const redis = require("../config/redis");
 
 const router = express.Router();
 
+//Helper to handle duplicate-key (e.g. duplicate SKU) errors consistently
+const handleProductError = (error, res) => {
+    if (error.code === 11000) {
+        const field = Object.keys(error.keyPattern || error.keyValue || { sku: 1 })[0];
+        const value = error.keyValue ? error.keyValue[field] : undefined;
+        return res.status(400).json({
+            message: `A product with that ${field}${value ? ` ("${value}")` : ""} already exists`,
+        });
+    }
+    console.error(error);
+    return res.status(500).json({ message: "Server Error" });
+};
+
 //@route POST /api/products
 //@desc Create a new Product
 //@access Private/Admin

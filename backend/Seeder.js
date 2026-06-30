@@ -35,7 +35,7 @@ const seedData = async () => {
     });
 
     //Insert the products into the database
-    await Product.insertMany(sampleProducts);
+    await Product.insertMany(sampleProducts,{ordered: false});
 
     console.log("Product data seeded successfully");
     process.exit();
