@@ -18,7 +18,7 @@ const FilterSidebar = () => {
 
   const [priceRange, setPriceRange] = useState([0,100]);
 
-  const categories = ["Top wear", "Bottom wear"];
+  const categories = ["Top Wear", "Bottom Wear"];
 
   const colors = [
     "Red",
@@ -53,6 +53,7 @@ const FilterSidebar = () => {
     "Beach Breeze",
     "Fashionista",
     "ChicStyle",
+    "DenimStyle",
   ];
 
   const genders = ["Men", "Women"];

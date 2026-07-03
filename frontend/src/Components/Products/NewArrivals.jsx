@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useRef ,useEffect } from 'react';
 import {Link} from 'react-router-dom'
 import {FiChevronLeft, FiChevronRight} from "react-icons/fi";
-import axios from "axios";
+import api from "../../utils/api"
 
 const NewArrivals = () => {
     const scrollRef = useRef(null);
@@ -17,9 +17,8 @@ const NewArrivals = () => {
     useEffect(() => {
         const fetchNewArrivals = async () => {
             try{
-                const response = await axios.get(
-                    `${import.meta.env.VITE_BACKEND_URL}/api/products/new-arrivals`
-                );
+                const response = await api.get("/products/new-arrivals");
+                console.log("Response data:", response.data);
                 setNewArrivals(response.data);
             } catch (error) {
                console.error(error); 
@@ -37,7 +36,7 @@ const NewArrivals = () => {
 
     const handleMouseMove = (e) =>{
           if(!isDragging) return;
-          const x = e.pageX - scrollRef.current.offSetLeft;
+          const x = e.pageX - scrollRef.current.offsetLeft;
           const walk= x-startX;
           scrollRef.current.scrollLeft= scrollLeft-walk;
     };
@@ -71,6 +70,7 @@ const NewArrivals = () => {
         }
     },[newArrivals]);
 
+     console.log("Rendering NewArrivals:", newArrivals);
   return( 
     <section className='py-16 px-4 lg:px-0'>
         <div className='container mx-auto text-center mb-10 relative'>

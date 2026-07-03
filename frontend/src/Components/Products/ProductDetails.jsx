@@ -9,13 +9,13 @@ import { fetchProductDetails, fetchSimilarProducts } from '../../redux/slices/pr
 import { addToCart } from '../../redux/slices/cartSlice';
 
 
-
 const ProductDetails = ({productId}) => {
     const { id } = useParams();
     const dispatch = useDispatch();
     const { selectedProduct, loading, error, similarProducts} = useSelector(
         (state) => state.products
     );
+    
     const { user, guestId} = useSelector((state) => state.auth);
     const [mainImage,setMainImage]= useState("");
     const [selectedSize, setSelectedSize]= useState("");
@@ -36,11 +36,10 @@ const ProductDetails = ({productId}) => {
        if(selectedProduct?.images?.length > 0){
         setMainImage(selectedProduct.images[0].url);
        }
-
     } , [selectedProduct]);
 
     const handleQuantityChange=(action)=> {
-        if(action==="plus")setQuantity((prev)=>prev+1);
+        if(action === "plus")setQuantity((prev)=>prev+1);
         if(action === "minus" && quantity >1 ) setQuantity ((prev)=> prev-1);
     }
 
@@ -80,6 +79,7 @@ const ProductDetails = ({productId}) => {
     if(error) {
         return <p>Error: {error}</p>;
     }
+    console.log("Selected Product:", selectedProduct);
 
   return (
     <div className='p-6'>
@@ -88,7 +88,7 @@ const ProductDetails = ({productId}) => {
         <div className='flex flex-col md:flex-row'>
             {/* Left ThumbNails */}
             <div className='hidden md:flex flex-col space-y-4 mr-6'>
-            {selectedProduct.images.map((image,index)=>(
+            {selectedProduct?.image?.map((image,index)=>(
                 <img 
                 key={index}
                 src={image.url} alt={image.altText || `Thumbnail ${index}`}
@@ -107,7 +107,7 @@ const ProductDetails = ({productId}) => {
             {/* Monile Thumbnails */}
             <div className='md:hidden flex overscroll-y-scroll
             space-x-4 mb-4'>
-                {selectedProduct.images.map((image,index)=>(
+                {selectedProduct?.images?.map((image,index)=>(
                 <img 
                 key={index}
                 src={image.url} alt={image.altText || `Thumbnail ${index}`}
@@ -135,7 +135,7 @@ const ProductDetails = ({productId}) => {
                     Color:
                 </p>
                 <div className='flex gap-2 mt-2'>
-                    {selectedProduct.colors.map((color)=>(
+                    {selectedProduct?.colors?.map((color)=>(
                         <button key={color}
                         onClick={()=> setSelectedColor(color)}
                         className={`w-8 h-8 rounded-full border ${selectedColor === color ? "border-4 border-black ": "border-gray-300"}`}
@@ -152,7 +152,7 @@ const ProductDetails = ({productId}) => {
                     Size:
                 </p>
                 <div className='flex gap-2 mt-2'>
-                    {selectedProduct.sizes.map((size)=>(
+                    {selectedProduct?.sizes?.map((size)=>(
                         <button key={size}
                         onClick={()=> setSelectedSize(size)} className={`px-4 py-2 rounded border ${selectedSize=== size ? "bg-black text-white":
                         ""}`}>

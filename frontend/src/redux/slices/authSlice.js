@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
+import api from "../../utils/api"
 //Retrieve user info and token from localStorage if available
 const userFromStorage = localStorage.getItem("userInfo")
   ? JSON.parse(localStorage.getItem("userInfo"))
@@ -24,8 +23,8 @@ const userFromStorage = localStorage.getItem("userInfo")
     "auth/loginUser",
     async (userData, { rejectWithValue }) => {
         try{
-            const response = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
+            const response = await api.post(
+                `/users/login`,
                 userData
             );
             localStorage.setItem("userInfo", JSON.stringify(response.data.user));
@@ -43,8 +42,8 @@ const userFromStorage = localStorage.getItem("userInfo")
     "auth/registerUser",
     async (userData, { rejectWithValue }) => {
         try{
-            const response = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/api/users/register`,
+            const response = await api.post(
+                `/users/register`,
                 userData
             );
             localStorage.setItem("userInfo", JSON.stringify(response.data.user));

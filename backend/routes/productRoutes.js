@@ -172,7 +172,7 @@ router.delete("/:id", protect, admin, async(req, res) => {
 //@desc Get all products with optional query filters
 //@access Public
 //Cache for 5 mins
-router.get("/",cache(300) ,async (req, res) => {
+router.get("/", cache(300) ,async (req, res) => {
     try{
        const {collection, size, color, gender, minPrice, maxPrice, sortBy, search,
              category, material, brand, limit

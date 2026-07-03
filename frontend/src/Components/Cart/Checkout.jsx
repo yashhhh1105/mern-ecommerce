@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import PayPalButton from './PayPalButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { createCheckout } from '../../redux/slices/checkoutSlice';
-import axios from 'axios';
-
+import api from "../../utils/api"
 
 const Checkout = () => {
     const navigate = useNavigate();
@@ -56,8 +55,8 @@ const Checkout = () => {
 
     const handlePaymentSuccess = async(details) =>{
        try {
-          const response = await axios.put(
-            `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${checkoutId}pay`,
+          const response = await api.put(
+            `/checkout/${checkoutId}pay`,
             {paymentStatus: "paid", paymentDetails: details},
             {
                 headers: {
@@ -73,8 +72,8 @@ const Checkout = () => {
 
     const handleFinalizeCheckout = async (checkoutId) => {
         try{
-            const response = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${checkoutId}/finalize`,
+            const response = await api.post(
+                `/checkout/${checkoutId}/finalize`,
                 {},
                 {
                     headers:{

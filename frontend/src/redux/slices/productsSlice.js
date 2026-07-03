@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
+import api from "../../utils/api"
 //Async Thunk to Fetch Products by Collection and optional Filters
 export const fetchProductsByFilters = createAsyncThunk(
     "products/fetchByFilters",
@@ -32,8 +31,8 @@ export const fetchProductsByFilters = createAsyncThunk(
         if (brand) query.append("brand", brand);
         if (limit) query.append("limit", limit);
 
-        const response = await axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/api/products?${query.toString()}`
+        const response = await api.get(
+            `/products?${query.toString()}`
         );
         return response.data;
     }
@@ -43,8 +42,8 @@ export const fetchProductsByFilters = createAsyncThunk(
 export const fetchProductDetails = createAsyncThunk(
     "products/fetchProductDetails",
     async (id) => {
-        const response = await axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`
+        const response = await api.get(
+            `/products/${id}`
         );
         return response.data;
     }
@@ -54,8 +53,8 @@ export const fetchProductDetails = createAsyncThunk(
 export const updateProduct = createAsyncThunk(
     "products/updateProduct",
     async({id, productData}) => {
-        const response = await axios.put(
-            `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`, productData,
+        const response = await api.put(
+            `/products/${id}`, productData,
             {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("userToken")}`,
@@ -70,8 +69,8 @@ export const updateProduct = createAsyncThunk(
 export const fetchSimilarProducts = createAsyncThunk(
     "products/fetchSimilarProducts",
     async ({ id }) => {
-        const response = await axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/api/products/similar/${id}`
+        const response = await api.get(
+            `/products/similar/${id}`
         );
         return response.data;
     }
@@ -132,7 +131,7 @@ const productSlice = createSlice({
         })
         .addCase(fetchProductsByFilters.rejected, (state, action) => {
             state.loading = false;
-            state.error - action.error.message;
+            state.error = action.error.message;
         })
 
         //Handle fetching single product details
@@ -142,7 +141,7 @@ const productSlice = createSlice({
         })
         .addCase(fetchProductDetails.fulfilled, (state, action) => {
             state.loading = false;
-            state.selectedProduct = action.payload;
+            state.selectedProduct = action.payload || null;
         })
         .addCase(fetchProductDetails.rejected, (state, action) => {
             state.loading = false;
@@ -158,7 +157,7 @@ const productSlice = createSlice({
             state.loading = false;
             const updatedProduct = action.payload;
             const index = state.products.findIndex(
-                (product) => product._id === updateProduct._id
+                (product) => product._id === updatedProduct._id
             );
             if(index !== -1){
                 state.products[index] = updatedProduct;
@@ -174,7 +173,7 @@ const productSlice = createSlice({
         })
         .addCase(fetchSimilarProducts.fulfilled, (state, action) => {
             state.loading = false;
-            state.similarProducts = action.payload;
+            state.similarProducts = action.payload.products || [];
         })
         .addCase(fetchSimilarProducts.rejected, (state, action) => {
             state.loading = false;

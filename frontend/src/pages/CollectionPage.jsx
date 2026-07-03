@@ -16,7 +16,10 @@ const CollectionPage = () => {
 
     const sidebarRef = useRef(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    
 
+    console.log("collection:", collection);
+    console.log("queryParams:", queryParams);
     useEffect(() => {
         dispatch(fetchProductsByFilters({ collection, ...queryParams}));
     }, [dispatch, collection, searchParams]);
@@ -41,7 +44,7 @@ const CollectionPage = () => {
     };
 },[]);
 
-    
+    console.log("Collection products:", products);
   return (
     <div className='flex flex-col lg:flex-row'>
       {/* Mobile Filter button */}
@@ -67,6 +70,7 @@ const CollectionPage = () => {
         <SortOptions/>
 
         {/* Product Grid */}
+        
         <ProductGrid products={products} loading ={loading} error= {error} />
       </div>
     </div>
