@@ -63,7 +63,7 @@ const EditProductPage = () => {
             );
             setProductData((prevData) => ({
                 ...prevData,
-                image:[...prevData.images, {url: data.imageUrl, altText: ""}],
+                images:[...prevData.images, {url: data.imageUrl, altText: ""}],
             }));
             setUploading(false);
         }catch (error) {
@@ -72,10 +72,11 @@ const EditProductPage = () => {
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDeafult();
-        dispatch(updateProduct({id, productData}));
-        navigate("/admin/products");
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+    const result = await dispatch(updateProduct({ id, productData }));
+    console.log(result);
+    navigate("/admin/products");
     };
 
     if(loading) return <p>Loading...</p>;
@@ -135,7 +136,7 @@ const EditProductPage = () => {
         <div className='mb-6'>
             <label className='block font-semibold mb-2'>SKU</label>
             <input 
-            type="number"
+            type="text"
             name='sku'
             value={productData.sku}
             onChange={handleChange}
@@ -146,7 +147,7 @@ const EditProductPage = () => {
         <div className='mb-6'>
             <label className='block font-semibold mb-2'>Sizes(comma-separarted)</label>
             <input 
-            type="number"
+            type="text"
             name='sizes'
             value={productData.sizes.join(",")}
             onChange={(e) => 
@@ -162,13 +163,13 @@ const EditProductPage = () => {
         <div className='mb-6'>
             <label className='block font-semibold mb-2'>Colors(comma-separated)</label>
             <input 
-            type="number"
+            type="text"
             name='colors'
             value={productData.colors.join(",")}
             onChange={(e) => 
                 setProductData({
                     ...productData,
-                    sizes: e.target.value.split(",").map((color) => color.trim()),
+                    colors: e.target.value.split(",").map((color) => color.trim()),
                 })
             }
             className='w-full border border-gray-300 rounded-md p-2'/>

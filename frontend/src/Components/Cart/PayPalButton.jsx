@@ -12,6 +12,9 @@ const PayPalButton = ({amount,onSuccess,onError}) => {
         <PayPalButtons 
         style={{layout:"vertical"}}
         createOrder={(data,actions) => {
+
+            console.log("Creating order for:", amount);
+
             return actions.order.create({
 
                 purchase_units: [
@@ -22,6 +25,9 @@ const PayPalButton = ({amount,onSuccess,onError}) => {
                         },
                     },
                 ],
+            }).then((orderID) => {
+        console.log("Order ID:", orderID);
+        return orderID;
             });
         }}
         onApprove={(data,actions) => {

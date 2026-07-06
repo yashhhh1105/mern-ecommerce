@@ -2,13 +2,15 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../utils/api";
 
 const API_URL =`${import.meta.env.VITE_BACKEND_URL}`
-const USER_TOKEN = `Bearer ${localStorage.getItem("userToken")}`
 
 //Async thunk to fetch admin products
 export const fetchAdminProducts = createAsyncThunk("adminProducts/fetchProducts", async () => {
+
+    const token = localStorage.getItem("userToken");
+
     const response = await api.get(`/admin/products`,{
         headers: {
-            Authorization: USER_TOKEN,
+            Authorization: `Bearer ${token}`,
         }
     });
     return response.data;
@@ -18,12 +20,15 @@ export const fetchAdminProducts = createAsyncThunk("adminProducts/fetchProducts"
 export const createProduct = createAsyncThunk(
     "adminProducts/createProduct",
     async(productData) => {
+
+        const token = localStorage.getItem("userToken");
+
         const response = await api.post(
             `/admin/products`,
             productData,
             {
                 headers: {
-                    Authorization: USER_TOKEN,
+                    Authorization: `Bearer ${token}`,
                 } 
             }
         );
@@ -35,11 +40,14 @@ export const createProduct = createAsyncThunk(
 export const updateProduct = createAsyncThunk(
     "adminProducts/updateProduct",
     async({id, productData}) => {
+
+        const token = localStorage.getItem("userToken");
+
         const response = await api.put(`/admin/products/${id}`,
             productData,
             {
                 headers: {
-                    Authorization: USER_TOKEN,
+                    Authorization: `Bearer ${token}`,
                 },
             }
         );
@@ -51,10 +59,13 @@ export const updateProduct = createAsyncThunk(
 export const deleteProduct = createAsyncThunk(
     "adminProducts/deleteProduct",
     async(id) => {
+
+        const token = localStorage.getItem("userToken");
+
         await api.delete(`/products/${id}`, {
             headers:
             {
-                Authorization: USER_TOKEN
+                Authorization: `Bearer ${token}`,
             },
         });
         return id;

@@ -70,6 +70,12 @@ router.post("/", protect, admin, async (req, res) => {
         });
 
         const createdProduct = await product.save();
+        const keys = await redis.keys("cache:/api/products*");
+        if (keys.length) {
+        await redis.del(keys);
+        console.log("Product cache invalidated");
+        }
+
         res.status(201).json(createdProduct);
 
     }catch (error) {
@@ -134,6 +140,13 @@ router.put("/:id", protect, admin, async (req, res) => {
 
         //Save the updated product
         const updatedProduct = await product.save();
+
+        const keys = await redis.keys("cache:/api/products*");
+        if (keys.length) {
+        await redis.del(keys);
+        console.log("Product cache invalidated");
+        }
+
         res.json(updatedProduct);
        }else{
         res.status(404).json({message: "Product not found"});

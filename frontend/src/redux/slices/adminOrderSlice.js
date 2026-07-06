@@ -9,7 +9,7 @@ export const fetchAllOrders = createAsyncThunk(
             const response = await api.get(`/admin/orders`,
                 {
                     headers: {
-                        Authorization: `Bearer${localStorage.getItem("userToken")}`,
+                        Authorization: `Bearer ${localStorage.getItem("userToken")}`,
                     },
                 }
             );
@@ -29,7 +29,7 @@ export const updateOrderStatus = createAsyncThunk(
                 `/admin/orders/${id}`,{status},
                 {
                     headers: {
-                        Authorization: `Bearer${localStorage.getItem("userToken")}`,
+                        Authorization: `Bearer ${localStorage.getItem("userToken")}`,
                     },
                 }
             );

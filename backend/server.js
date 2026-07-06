@@ -17,8 +17,10 @@ const { RedisStore } = require("rate-limit-redis");
 const redis = require("./config/redis");
 
 
-
 const app = express();
+
+app.set("trust proxy", 1);
+
 app.use(express.json());
 app.use(cors());
 
@@ -39,9 +41,21 @@ app.get('/', (req, res) => {
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,
-    message: {message: "Too many attempts, please try again in 15 minutes"},
+    handler: (req, res) => {
+        console.log("AUTH LIMITER HIT:",req.method, req.originalUrl);
+        return res.status(429).json({
+            message: "Too many attempts, please try again in 15 minutes",
+        });
+    },
+
+    skip: (req) => {
+    console.log("AUTH CHECK:", req.method, req.originalUrl);
+    return false;
+    },
+
     store: new RedisStore({
         sendCommand: (...args) => redis.call(...args),
+        prefix:"auth",
     }),
 });
 
@@ -49,9 +63,19 @@ const authLimiter = rateLimit({
 const generalLimiter = rateLimit({
     windowMs: 60 * 1000,
     max: 100,
-    message: {message: "Too many requests, please slow down"},
+    handler: (req, res) => {
+        console.log("GENERAL LIMITER HIT:", req.originalUrl);
+        return res.status(429).json({
+            message: "Too many requests, please slow down",
+        });
+    },
+    skip: (req) => {
+    console.log("GENERAL CHECK:", req.method, req.originalUrl);
+    return false;
+    },
     store: new RedisStore({
         sendCommand: (...args) => redis.call(...args),
+        prefix: "general",
     }),
 });
 
@@ -59,22 +83,20 @@ const generalLimiter = rateLimit({
 app.use("/api/users/login", authLimiter);
 app.use("/api/users/register", authLimiter);
 
-//Apply general limiter to all routes
-app.use(generalLimiter);
 
 //API Routes
-app.use("/api/users", userRoutes);
-app.use("/api/products", productRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/checkout",checkoutRoutes);
-app.use("/api/orders",orderRoutes);
-app.use("/api/upload",uploadRoutes);
-app.use("/api",subscriberRoutes);
+app.use("/api/users",generalLimiter , userRoutes);
+app.use("/api/products" ,generalLimiter , productRoutes);
+app.use("/api/cart" , generalLimiter ,cartRoutes);
+app.use("/api/checkout" , generalLimiter ,checkoutRoutes);
+app.use("/api/orders" , generalLimiter ,orderRoutes);
+app.use("/api/upload" , generalLimiter ,uploadRoutes);
+app.use("/api" , generalLimiter ,subscriberRoutes);
 
 //Admin
-app.use("/api/admin/users", adminRoutes);
-app.use("/api/admin/products", productAdminRoutes);
-app.use("/api/admin/orders", adminOrderRoutes);
+app.use("/api/admin/users" , generalLimiter , adminRoutes);
+app.use("/api/admin/products" , generalLimiter , productAdminRoutes);
+app.use("/api/admin/orders", generalLimiter, adminOrderRoutes);
 
 
 app.listen(PORT, () => {

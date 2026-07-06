@@ -13,7 +13,10 @@ const protect = async (req, res, next) => {
             token = req.headers.authorization.split(" ")[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            req.user = await User.findById(decoded.user.id).select("-password"); //Exclude Password
+            req.user = await User.findById(decoded.user.id).select("-password");
+             //Exclude Password
+             console.log("Decoded token:", decoded);
+             console.log("Authenticated user:", req.user);
             next();
         }catch (error) {
             console.error("Token verification failed:", error);
@@ -27,6 +30,7 @@ const protect = async (req, res, next) => {
 //Middleware to check if the user is an admin
 const admin = (req, res, next) => {
     if(req.user && req.user.role === "admin"){
+        console.log("Role in admin middleware:", req.user?.role);
         next();
     }else{
         res.status(403).json({ message: "Not authorised as an admin"});

@@ -60,7 +60,7 @@ const MyOrders = () => {
                                 `${order.shippingAddress.city},${order.shippingAddress.country}` :"N/A"}
                             </td>
                             <td className='py-2 px-2 sm:py-4 sm:px-4'>
-                                ${order.orderItems.length}
+                                {order.orderItems.length}
                             </td>
                             <td className='py-2 px-2 sm:py-4 sm:px-4'>
                                 ${order.totalPrice}

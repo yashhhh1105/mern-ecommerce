@@ -32,6 +32,7 @@ const Login = () => {
  }, [user, guestId, cart, navigate, isCheckoutRedirect, dispatch]);
 
  const handleSubmit = (e) => {
+    console.log("LOGIN BUTTON CLICKED");
     e.preventDefault();
     dispatch(loginUser({ email, password}));
 };

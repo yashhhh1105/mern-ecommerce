@@ -55,12 +55,13 @@ const Checkout = () => {
 
     const handlePaymentSuccess = async(details) =>{
        try {
+        console.log("Checkout ID:", checkoutId);
           const response = await api.put(
-            `/checkout/${checkoutId}pay`,
+            `/checkout/${checkoutId}/pay`,
             {paymentStatus: "paid", paymentDetails: details},
             {
                 headers: {
-                    Authorization:`Bearer ${localStorage.getItem("user Token")}`,
+                    Authorization:`Bearer ${localStorage.getItem("userToken")}`,
                 }
             }
           );

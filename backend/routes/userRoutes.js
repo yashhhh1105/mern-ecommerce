@@ -24,7 +24,7 @@ router.post("/register", async (req,res) => {
 
         //Sign and return the token along with user data
         jwt.sign(payload, process.env.JWT_SECRET,
-            {expiresIn: "5h"},
+            {expiresIn: "24h"},
             (err, token) => {
                 if (err) throw err;
 
