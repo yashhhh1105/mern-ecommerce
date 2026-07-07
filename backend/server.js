@@ -53,15 +53,6 @@ const authLimiter = rateLimit({
         });
     },
 
-    skip: (req) => {
-    console.log("AUTH CHECK:", req.method, req.originalUrl);
-    return false;
-    },
-
-    store: new RedisStore({
-        sendCommand: (...args) => redis.call(...args),
-        prefix:"auth",
-    }),
 });
 
 //General limiter for all routes -- 100 requests per minutes
@@ -79,14 +70,7 @@ const generalLimiter = rateLimit({
             message: "Too many requests, please slow down",
         });
     },
-    skip: (req) => {
-    console.log("GENERAL CHECK:", req.method, req.originalUrl);
-    return false;
-    },
-    store: new RedisStore({
-        sendCommand: (...args) => redis.call(...args),
-        prefix: "general",
-    }),
+    
 });
 
 //Apply strict limiter to auth routes only 
