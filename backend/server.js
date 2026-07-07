@@ -19,7 +19,7 @@ const redis = require("./config/redis");
 
 const app = express();
 
-app.set("trust proxy", true);
+app.set("trust proxy", 1);
 
 app.use(express.json());
 app.use(cors());
@@ -41,6 +41,11 @@ app.get('/', (req, res) => {
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+
+    keyGenerator: (req) => req.ip,
+
     handler: (req, res) => {
         console.log("AUTH LIMITER HIT:",req.method, req.originalUrl);
         return res.status(429).json({
@@ -63,6 +68,11 @@ const authLimiter = rateLimit({
 const generalLimiter = rateLimit({
     windowMs: 60 * 1000,
     max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+
+    keyGenerator: (req) => req.ip,
+
     handler: (req, res) => {
         console.log("GENERAL LIMITER HIT:", req.originalUrl);
         return res.status(429).json({
