@@ -12,7 +12,7 @@ const subscriberRoutes = require("./routes/subscriberRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const productAdminRoutes = require("./routes/productAdminRoutes");
 const adminOrderRoutes = require("./routes/adminOrderRoutes");
-const rateLimit = require("express-rate-limit");
+const {rateLimit, ipkeyGenerator, ipKeyGenerator} = require("express-rate-limit");
 const { RedisStore } = require("rate-limit-redis");
 const redis = require("./config/redis");
 
@@ -44,7 +44,7 @@ const authLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 
-    keyGenerator: (req) => req.ip,
+    keyGenerator: (req) => ipKeyGenerator(req),
 
     handler: (req, res) => {
         console.log("AUTH LIMITER HIT:",req.method, req.originalUrl);
@@ -55,7 +55,7 @@ const authLimiter = rateLimit({
 
     store: new RedisStore({
         sendCommand: (...args) => redis.call(...args),
-        prefix:"auth",
+        prefix:"auth:",
     }),
 
 });
@@ -63,18 +63,13 @@ const authLimiter = rateLimit({
 //General limiter for all routes -- 100 requests per minutes
 const generalLimiter = rateLimit({
     windowMs: 60 * 1000,
-    max: 100,
+    max: 300,
     standardHeaders: true,
     legacyHeaders: false,
 
-    keyGenerator: (req) => {
-        console.log("IP:", req.ip);
-        console.log("X-Forwarded-For:", req.headers["x-forwarded-for"]);
-        return req.ip;
-    },
+    keyGenerator: (req) =>  ipKeyGenerator(req),
 
     handler: (req, res) => {
-        console.log("GENERAL LIMITER HIT:", req.originalUrl);
         return res.status(429).json({
             message: "Too many requests, please slow down",
         });
@@ -82,7 +77,7 @@ const generalLimiter = rateLimit({
 
     store: new RedisStore({
         sendCommand: (...args) => redis.call(...args),
-        prefix: "general",
+        prefix: "general:",
     }),
     
 });
@@ -93,13 +88,13 @@ app.use("/api/users/register", authLimiter);
 
 
 //API Routes
-app.use("/api/users",generalLimiter , userRoutes);
-app.use("/api/products" ,generalLimiter , productRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
 app.use("/api/cart" , generalLimiter ,cartRoutes);
 app.use("/api/checkout" , generalLimiter ,checkoutRoutes);
 app.use("/api/orders" , generalLimiter ,orderRoutes);
-app.use("/api/upload" , generalLimiter ,uploadRoutes);
-app.use("/api" , generalLimiter ,subscriberRoutes);
+app.use("/api/upload",uploadRoutes);
+app.use("/api",subscriberRoutes);
 
 //Admin
 app.use("/api/admin/users" , generalLimiter , adminRoutes);
