@@ -53,6 +53,11 @@ const authLimiter = rateLimit({
         });
     },
 
+    store: new RedisStore({
+        sendCommand: (...args) => redis.call(...args),
+        prefix:"auth",
+    }),
+
 });
 
 //General limiter for all routes -- 100 requests per minutes
@@ -62,7 +67,11 @@ const generalLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 
-    keyGenerator: (req) => req.ip,
+    keyGenerator: (req) => {
+        console.log("IP:", req.ip);
+        console.log("X-Forwarded-For:", req.headers["x-forwarded-for"]);
+        return req.ip;
+    },
 
     handler: (req, res) => {
         console.log("GENERAL LIMITER HIT:", req.originalUrl);
@@ -70,6 +79,11 @@ const generalLimiter = rateLimit({
             message: "Too many requests, please slow down",
         });
     },
+
+    store: new RedisStore({
+        sendCommand: (...args) => redis.call(...args),
+        prefix: "general",
+    }),
     
 });
 
