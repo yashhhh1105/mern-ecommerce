@@ -70,7 +70,9 @@ const generalLimiter = rateLimit({
     keyGenerator: (req) =>  ipKeyGenerator(req),
 
     handler: (req, res) => {
+        console.log("GENERAL LIMITER HIT:", req.ip, req.originalUrl);
         return res.status(429).json({
+            source: "express-rate-limit",
             message: "Too many requests, please slow down",
         });
     },
